@@ -1,5 +1,6 @@
 # Enviroments
 .env
+config.py
 
 # Data store
 tickets.json

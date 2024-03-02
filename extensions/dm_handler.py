@@ -5,16 +5,17 @@ from extensions.modmail import *
 plugin = lightbulb.Plugin("DM Handler")
 
 @plugin.listener(hikari.DMMessageCreateEvent)
-async def ticket_manager(event: hikari.DMMessageCreateEvent) -> None:
-    openticket = open_ticket_check(event.author)
+async def dm_manager(event: hikari.DMMessageCreateEvent) -> None:
+    if event.is_human:
+        open = open_ticket_check(event.author)
 
-    if event.is_human and not openticket:
-        create_ticket(event.author)
-    elif event.is_human and openticket:
-       # handleMessage()
-       return
+        if not open:
+            await create_ticket(event.author)
 
-def load(bot: lightbulb.BotApp):
+        await dmToServer(event.author, event.message.content)
+        logging.info("Message from %s sent to primary guild." % event.author.username)
+
+def load(bot: lightbulb.BotApp) -> None:
     bot.add_plugin(plugin)
 
 def unload(bot: lightbulb.BotApp) -> None:
