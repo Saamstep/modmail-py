@@ -1,34 +1,68 @@
-from peewee import *
+import sqlite3
 
 # ************************************************************** #
 #                            USER DATA
 # * id | status | lastReply | assigned_to | channel_id | hud_id
 # ************************************************************** #
 
-db = SqliteDatabase("tickets.db")
+db = sqlite3.connect("bot.db")
 
-class BaseModel(Model):
-  class Meta:
-    database = db
+cursor = db.cursor()
 
-class Ticket(BaseModel):
-  id = IntegerField()
-  status = TextField()
-  lastReply = TextField()
-  assigned_to = IntegerField()
-  channel_id = IntegerField()
-  hud_id = IntegerField()
+tableCheck = cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='tickets'").fetchall()
 
-db.connect()
-db.create_tables([Ticket])
+if len(tableCheck) == 0:
+  cursor.execute("CREATE TABLE tickets (id TEXT, status TEXT, lastReply INTEGER, assigned_to TEXT, channel_id TEXT, hud_id TEXT)")
+
+cursor.close()
 
 def new_ticket(u, channel) -> int:
-  entry = Ticket.create(id=u.id, status="NEW", lastReply="p", assigned_to=0, channel_id=channel.id, hud_id=0)
+  cursor = db.cursor()
+  entry = cursor.execute("INSERT INTO tickets VALUES(?,'NEW',0,'NA',?,'NULL')", (u.id, channel.id))
+  db.commit()
+  cursor.close()
   return entry
 
-def find_user(u):
-  query = db.search(where('id') == u.id)
-  return query
+def find_user(u) -> bool:
+  cursor = db.cursor()
+  query = cursor.execute(
+    "SELECT * FROM tickets WHERE id = ?",
+    (u.id,),
+    ).fetchall()
+  cursor.close()
+  if(len(query) > 0):
+    return True
+  else:
+    return False
+  
+def getUserId(ch):
+  cursor = db.cursor()
+  query = cursor.execute(
+    "SELECT id FROM tickets WHERE channel_id = ?",
+    (ch,),
+    ).fetchone()
+  cursor.close()
+  if(len(query) > 0):
+    return str(query[0])
+  else:
+    return None
+  
+def getTicketChannel(u):
+  cursor = db.cursor()
+  query = cursor.execute(
+    "SELECT channel_id FROM tickets WHERE id = ?",
+    (u.id,),
+    ).fetchone()
+  cursor.close()
+  if(len(query) > 0):
+    return str(query[0])
+  else:
+    return None
 
 def delete_ticket(channel_id) -> None:
-  db.remove(where('channel_id' == channel_id))
+  cursor = db.cursor()
+  query = cursor.execute(
+    "DELETE FROM tickets WHERE channel_id = ?",
+    (channel_id,),
+    )
+  cursor.close()

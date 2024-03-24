@@ -20,27 +20,27 @@ async def create_ticket(user) -> hikari.ChannelType.GUILD_TEXT:
    return channel, user
 
 async def dmToServer(user, content):
-    t = db.find_user(user)[0]
-    print(t)
-    m = await sendDmToServer(t, content)
+    ticketCh = db.getTicketChannel(user)
+    m = await sendDmToServer(ticketCh, content)
+
     if(m == None):
-        await plugin.bot.rest.create_message(t.get('channel_id'), "❌ **Error** Unable to send message received by sender.")
+        await plugin.bot.rest.create_message(ticketCh, "❌ **Error** Unable to send message received by sender.")
+        logging.error("Unable to send message from %s to primary guild." % user.username)
         return False
     else:
-        await plugin.bot.rest.add_reaction(t.get('channel_id'), m.id, emoji='✅')
+        logging.info("Message from %s sent to primary guild." % user.username)
         return True
 
 async def sendDmToServer(t, content):
     try:
-        msg = await plugin.bot.rest.create_message(t.get('channel_id'), content)
+        msg = await plugin.bot.rest.create_message(t, content)
         return msg
     except Exception as e:
         logging.critical(e)
         return None
     
 def open_ticket_check(user) -> bool:
-    if(len(db.find_user(user)) >= 1): return True
-    else: return False
+    return db.find_user(user)
 
 def load(bot: lightbulb.BotApp) -> None:
     bot.add_plugin(plugin)

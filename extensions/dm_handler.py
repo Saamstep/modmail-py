@@ -10,6 +10,7 @@ async def dm_manager(event: hikari.DMMessageCreateEvent) -> None:
         open = open_ticket_check(event.author)
 
         if not open:
+            logging.info("Creating ticket for user %s." % event.author.username)
             await create_ticket(event.author)
 
         await dmToServer(event.author, event.message.content)
