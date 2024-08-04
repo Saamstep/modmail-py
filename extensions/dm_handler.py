@@ -10,11 +10,9 @@ async def dm_manager(event: hikari.DMMessageCreateEvent) -> None:
         open = open_ticket_check(event.author)
 
         if not open:
-            logging.info("Creating ticket for user %s." % event.author.username)
             await create_ticket(event.author)
 
-        await dmToServer(event.author, event.message.content)
-        logging.info("Message from %s sent to primary guild." % event.author.username)
+        await dmToServer(event.author, event.content)
 
 def load(bot: lightbulb.BotApp) -> None:
     bot.add_plugin(plugin)

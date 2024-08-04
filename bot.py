@@ -5,7 +5,7 @@ from helpers.db import *
 import config
 load_dotenv()
 
-INTENTS = hikari.Intents.GUILD_MEMBERS | hikari.Intents.GUILDS | hikari.Intents.DM_MESSAGES | hikari.Intents.MESSAGE_CONTENT | hikari.Intents.ALL_MESSAGES | hikari.Intents.ALL_GUILDS
+INTENTS = hikari.Intents.GUILD_MEMBERS | hikari.Intents.GUILDS | hikari.Intents.DM_MESSAGES | hikari.Intents.MESSAGE_CONTENT | hikari.Intents.ALL_MESSAGES
 
 bot = lightbulb.BotApp(token=os.environ["TOKEN"],intents=INTENTS,banner=None)
 

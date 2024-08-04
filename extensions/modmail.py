@@ -39,6 +39,9 @@ async def sendDmToServer(t, content):
         logging.critical(e)
         return None
     
+async def serverToDm(user, content):
+    
+    
 def open_ticket_check(user) -> bool:
     return db.find_user(user)
 
